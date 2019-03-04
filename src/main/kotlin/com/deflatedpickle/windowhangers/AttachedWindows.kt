@@ -4,11 +4,11 @@ import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.ptr.IntByReference
 
 object AttachedWindows {
-    var firstWindowProcessID: IntByReference? = null
-    var secondWindowProcessID: IntByReference? = null
+    var rootWindowProcessID: IntByReference? = null
+    var attachedWindowProcessIDs: MutableMap<String, IntByReference?> = mutableMapOf()
 
-    var firstWindowHandleID: WinDef.HWND? = null
-    var secondWindowHandleID: WinDef.HWND? = null
+    var rootWindowHandleID: WinDef.HWND? = null
+    var attachedWindowHandleIDs: MutableMap<String, WinDef.HWND?> = mutableMapOf()
 
     var hookPoint = HookPoint.Centre
 }

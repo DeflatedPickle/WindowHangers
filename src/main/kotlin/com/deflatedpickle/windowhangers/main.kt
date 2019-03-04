@@ -12,10 +12,12 @@ fun main(args: Array<String>) {
 
     // Test window
     val firstWindow = WindowUtil.processMap["notepad++"]
-    AttachedWindows.firstWindowProcessID = firstWindow
+    AttachedWindows.rootWindowProcessID = firstWindow
 
     val secondWindow = WindowUtil.processMap["gvim"]
-    AttachedWindows.secondWindowProcessID = secondWindow
+    AttachedWindows.attachedWindowProcessIDs["gvim"] = secondWindow
+
+    AttachedWindows.attachedWindowProcessIDs["notepad2"] = WindowUtil.processMap["notepad2"]
 
     AttachedWindows.hookPoint = HookPoint.Top
 
@@ -26,14 +28,16 @@ fun main(args: Array<String>) {
 
             User32.INSTANCE.GetWindowThreadProcessId(hwnd, dwProcessId)
 
-            if (AttachedWindows.firstWindowHandleID == null
-                    && dwProcessId.value == AttachedWindows.firstWindowProcessID!!.value) {
-                AttachedWindows.firstWindowHandleID = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
+            if (AttachedWindows.rootWindowHandleID == null
+                    && dwProcessId.value == AttachedWindows.rootWindowProcessID!!.value) {
+                AttachedWindows.rootWindowHandleID = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
             }
 
-            if (AttachedWindows.secondWindowHandleID == null
-                    && dwProcessId.value == AttachedWindows.secondWindowProcessID!!.value) {
-                AttachedWindows.secondWindowHandleID = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
+            for ((k, v) in AttachedWindows.attachedWindowProcessIDs) {
+                if (AttachedWindows.attachedWindowHandleIDs[k] == null
+                        && dwProcessId.value == AttachedWindows.attachedWindowProcessIDs[k]!!.value) {
+                    AttachedWindows.attachedWindowHandleIDs[k] = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
+                }
             }
 
             return true
@@ -41,64 +45,69 @@ fun main(args: Array<String>) {
 
     }, Pointer(1L))
 
-    val firstRect = WinDef.RECT()
-    val secondRect = WinDef.RECT()
+    val rootRect = WinDef.RECT()
+    val attachedRect = mutableMapOf<String, WinDef.RECT>()
 
-    User32.INSTANCE.GetWindowRect(AttachedWindows.secondWindowHandleID, secondRect)
+    for ((k, v) in AttachedWindows.attachedWindowProcessIDs) {
+        attachedRect[k] = WinDef.RECT()
+        User32.INSTANCE.GetWindowRect(AttachedWindows.attachedWindowHandleIDs[k], attachedRect[k])
+    }
 
-    val placement = WinUser.WINDOWPLACEMENT()
-    User32.INSTANCE.GetWindowPlacement(AttachedWindows.firstWindowHandleID, placement)
+    // val placement = WinUser.WINDOWPLACEMENT()
+    // User32.INSTANCE.GetWindowPlacement(AttachedWindows.rootWindowHandleID, placement)
     // User32.INSTANCE.SetWindowPlacement(AttachedWindows.secondWindowHandleID, placement)
 
     while (true) {
-        User32.INSTANCE.GetWindowRect(AttachedWindows.firstWindowHandleID, firstRect)
+        User32.INSTANCE.GetWindowRect(AttachedWindows.rootWindowHandleID, rootRect)
 
-        val firstWidth = firstRect.right - firstRect.left
-        val firstHeight = firstRect.bottom - firstRect.top
+        val rootWidth = rootRect.right - rootRect.left
+        val rootHeight = rootRect.bottom - rootRect.top
 
-        val secondWidth = secondRect.right - secondRect.left
-        val secondHeight = secondRect.bottom - secondRect.top
+        for ((k, v) in attachedRect) {
+            val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left
+            val attachedHeight = attachedRect[k]!!.bottom - attachedRect[k]!!.top
 
-        when (AttachedWindows.hookPoint) {
-            HookPoint.Top -> {
-                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left,
-                        firstRect.top - secondHeight + 8,
-                        firstWidth,
-                        secondHeight,
-                        true)
-            }
-            HookPoint.Right -> {
-                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left + firstWidth - 15,
-                        firstRect.top,
-                        secondWidth,
-                        firstHeight,
-                        true)
-            }
-            HookPoint.Bottom -> {
-                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left,
-                        firstRect.top + firstHeight - 8,
-                        firstWidth,
-                        secondHeight,
-                        true)
-            }
-            HookPoint.Left -> {
-                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left - secondWidth + 15,
-                        firstRect.top,
-                        secondWidth,
-                        firstHeight,
-                        true)
-            }
-            HookPoint.Centre -> {
-                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left + (firstWidth / 2) - (secondWidth / 2),
-                        firstRect.top + (firstHeight / 2) - (secondHeight / 2),
-                        secondWidth,
-                        secondHeight,
-                        true)
+            when (AttachedWindows.hookPoint) {
+                HookPoint.Top -> {
+                    User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
+                            rootRect.left,
+                            rootRect.top - attachedHeight + 8,
+                            rootWidth,
+                            attachedHeight,
+                            true)
+                }
+                HookPoint.Right -> {
+                    User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
+                            rootRect.left + rootWidth - 15,
+                            rootRect.top,
+                            attachedWidth,
+                            rootHeight,
+                            true)
+                }
+                HookPoint.Bottom -> {
+                    User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
+                            rootRect.left,
+                            rootRect.top + rootHeight - 8,
+                            rootWidth,
+                            attachedHeight,
+                            true)
+                }
+                HookPoint.Left -> {
+                    User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
+                            rootRect.left - attachedWidth + 15,
+                            rootRect.top,
+                            attachedWidth,
+                            rootHeight,
+                            true)
+                }
+                HookPoint.Centre -> {
+                    User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
+                            rootRect.left + (rootWidth / 2) - (attachedWidth / 2),
+                            rootRect.top + (rootHeight / 2) - (attachedHeight / 2),
+                            attachedWidth,
+                            attachedHeight,
+                            true)
+                }
             }
         }
     }
