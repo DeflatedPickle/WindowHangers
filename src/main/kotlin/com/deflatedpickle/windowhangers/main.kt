@@ -21,10 +21,10 @@ fun main(args: Array<String>) {
     // processMap.forEach { t, u -> println("$t = $u") }
 
     // Test window
-    val firstWindow = processMap["notepad++"]
+    val firstWindow = processMap["Notepad2"]
     AttachedWindows.firstWindowProcessID = firstWindow
 
-    val secondWindow = processMap["Notepad2"]
+    val secondWindow = processMap["notepad++"]
     AttachedWindows.secondWindowProcessID = secondWindow
 
     AttachedWindows.hookPoint = HookPoint.Top
@@ -67,12 +67,47 @@ fun main(args: Array<String>) {
         val secondWidth = secondRect.right - secondRect.left
         val secondHeight = secondRect.bottom - secondRect.top
 
-        // TODO: Implement hook points
-        User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                firstRect.left,
-                firstRect.top - secondHeight - 51,
-                firstWidth,
-                240,
-                true)
+        when (AttachedWindows.hookPoint) {
+            HookPoint.Top -> {
+                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                        firstRect.left,
+                        firstRect.top - secondHeight - 51,
+                        firstWidth,
+                        240,
+                        true)
+            }
+            HookPoint.Right -> {
+                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                        firstRect.left + firstWidth - 15,
+                        firstRect.top,
+                        240,
+                        firstHeight,
+                        true)
+            }
+            HookPoint.Bottom -> {
+                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                        firstRect.left,
+                        firstRect.top + firstHeight - 9,
+                        firstWidth,
+                        240,
+                        true)
+            }
+            HookPoint.Left -> {
+                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                        firstRect.left - secondWidth - 1,
+                        firstRect.top,
+                        240,
+                        firstHeight,
+                        true)
+            }
+            HookPoint.Centre -> {
+                User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                        firstRect.left + (firstWidth / 2) - (secondWidth / 2),
+                        firstRect.top + (firstHeight / 2) - (secondHeight / 2),
+                        240,
+                        240,
+                        true)
+            }
+        }
     }
 }
