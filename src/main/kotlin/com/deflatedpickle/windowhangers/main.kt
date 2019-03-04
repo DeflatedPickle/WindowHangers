@@ -5,6 +5,7 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
+import org.joml.Vector2i
 
 
 fun main(args: Array<String>) {
@@ -16,8 +17,6 @@ fun main(args: Array<String>) {
 
     val secondWindow = WindowUtil.processMap["gvim"]
     AttachedWindows.attachedWindowProcessIDs["gvim"] = secondWindow
-
-    AttachedWindows.attachedWindowProcessIDs["notepad2"] = WindowUtil.processMap["notepad2"]
 
     AttachedWindows.hookPoint = HookPoint.Top
 
@@ -57,11 +56,21 @@ fun main(args: Array<String>) {
     // User32.INSTANCE.GetWindowPlacement(AttachedWindows.rootWindowHandleID, placement)
     // User32.INSTANCE.SetWindowPlacement(AttachedWindows.secondWindowHandleID, placement)
 
+    val oldPosition = Vector2i()
+    val newPosition = Vector2i()
+
     while (true) {
+        oldPosition.set(rootRect.left, rootRect.top)
         User32.INSTANCE.GetWindowRect(AttachedWindows.rootWindowHandleID, rootRect)
+        newPosition.set(rootRect.left, rootRect.top)
+
+        WindowUtil.movementSpeed.set(oldPosition.x - newPosition.x, oldPosition.y - newPosition.y)
+        WindowUtil.windowPosition.set(newPosition.x, newPosition.y)
 
         val rootWidth = rootRect.right - rootRect.left
         val rootHeight = rootRect.bottom - rootRect.top
+
+        WindowUtil.windowSize.set(rootWidth, rootHeight)
 
         for ((k, v) in attachedRect) {
             val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left

@@ -25,6 +25,8 @@ dependencies {
 
     compile group: 'net.java.dev.jna', name: 'jna', version: '5.2.0'
     compile 'net.java.dev.jna:jna-platform:5.2.0'
+    
+    compile "org.joml:joml:1.9.12"
 }
 
 compileKotlin {
