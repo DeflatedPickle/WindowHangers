@@ -8,27 +8,18 @@ import com.sun.jna.ptr.IntByReference
 
 
 fun main(args: Array<String>) {
-    val processMap = mutableMapOf<String, IntByReference>()
-
-    for (ph in ProcessHandle.allProcesses()) {
-        // println("ID: ${ph.pid()} | Command: ${ph.info().command()} | Parent: ${ph.parent()}")
-
-        if (ph.info().command().isPresent) {
-            processMap[ph.info().command().get().split("\\").last().split(".").first()] = IntByReference(ph.pid().toInt())
-        }
-    }
-
-    // processMap.forEach { t, u -> println("$t = $u") }
+    // WindowUtil.processMap.forEach { t, u -> println("$t = $u") }
 
     // Test window
-    val firstWindow = processMap["Notepad2"]
+    val firstWindow = WindowUtil.processMap["notepad++"]
     AttachedWindows.firstWindowProcessID = firstWindow
 
-    val secondWindow = processMap["notepad++"]
+    val secondWindow = WindowUtil.processMap["gvim"]
     AttachedWindows.secondWindowProcessID = secondWindow
 
     AttachedWindows.hookPoint = HookPoint.Top
 
+    // TODO: Move to WindowUtil
     User32.INSTANCE.EnumWindows(object : WinUser.WNDENUMPROC {
         override fun callback(hwnd: WinDef.HWND, pntr: Pointer): Boolean {
             val dwProcessId = IntByReference(0)
@@ -50,16 +41,17 @@ fun main(args: Array<String>) {
 
     }, Pointer(1L))
 
-    val placement = WinUser.WINDOWPLACEMENT()
-    User32.INSTANCE.GetWindowPlacement(AttachedWindows.firstWindowHandleID, placement)
-    User32.INSTANCE.SetWindowPlacement(AttachedWindows.secondWindowHandleID, placement)
-
     val firstRect = WinDef.RECT()
     val secondRect = WinDef.RECT()
 
+    User32.INSTANCE.GetWindowRect(AttachedWindows.secondWindowHandleID, secondRect)
+
+    val placement = WinUser.WINDOWPLACEMENT()
+    User32.INSTANCE.GetWindowPlacement(AttachedWindows.firstWindowHandleID, placement)
+    // User32.INSTANCE.SetWindowPlacement(AttachedWindows.secondWindowHandleID, placement)
+
     while (true) {
         User32.INSTANCE.GetWindowRect(AttachedWindows.firstWindowHandleID, firstRect)
-        User32.INSTANCE.GetClientRect(AttachedWindows.secondWindowHandleID, secondRect)
 
         val firstWidth = firstRect.right - firstRect.left
         val firstHeight = firstRect.bottom - firstRect.top
@@ -71,32 +63,32 @@ fun main(args: Array<String>) {
             HookPoint.Top -> {
                 User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
                         firstRect.left,
-                        firstRect.top - secondHeight - 51,
+                        firstRect.top - secondHeight + 8,
                         firstWidth,
-                        240,
+                        secondHeight,
                         true)
             }
             HookPoint.Right -> {
                 User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
                         firstRect.left + firstWidth - 15,
                         firstRect.top,
-                        240,
+                        secondWidth,
                         firstHeight,
                         true)
             }
             HookPoint.Bottom -> {
                 User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
                         firstRect.left,
-                        firstRect.top + firstHeight - 9,
+                        firstRect.top + firstHeight - 8,
                         firstWidth,
-                        240,
+                        secondHeight,
                         true)
             }
             HookPoint.Left -> {
                 User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
-                        firstRect.left - secondWidth - 1,
+                        firstRect.left - secondWidth + 15,
                         firstRect.top,
-                        240,
+                        secondWidth,
                         firstHeight,
                         true)
             }
@@ -104,8 +96,8 @@ fun main(args: Array<String>) {
                 User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
                         firstRect.left + (firstWidth / 2) - (secondWidth / 2),
                         firstRect.top + (firstHeight / 2) - (secondHeight / 2),
-                        240,
-                        240,
+                        secondWidth,
+                        secondHeight,
                         true)
             }
         }
