@@ -1,45 +1,33 @@
 package com.deflatedpickle.windowhangers
 
-import com.sun.jna.Native
 import com.sun.jna.Pointer
-import com.sun.jna.platform.win32.Kernel32
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
-import java.lang.ProcessHandle
-import org.eclipse.swt.internal.win32.OS.GetWindowTextA
 
-
-
-
-object AttachedWindows {
-    var firstWindowProcessID: IntByReference? = null
-    var secondWindowProcessID: IntByReference? = null
-
-    var firstWindowHandleID: WinDef.HWND? = null
-    var secondWindowHandleID: WinDef.HWND? = null
-}
 
 fun main(args: Array<String>) {
-    val processMap = mutableMapOf<String, Long>()
+    val processMap = mutableMapOf<String, IntByReference>()
 
     for (ph in ProcessHandle.allProcesses()) {
         // println("ID: ${ph.pid()} | Command: ${ph.info().command()} | Parent: ${ph.parent()}")
 
         if (ph.info().command().isPresent) {
-            processMap[ph.info().command().get().split("\\").last().split(".").first()] = ph.pid()
+            processMap[ph.info().command().get().split("\\").last().split(".").first()] = IntByReference(ph.pid().toInt())
         }
     }
 
     // processMap.forEach { t, u -> println("$t = $u") }
 
     // Test window
-    val window = IntByReference(20916)
-    AttachedWindows.firstWindowProcessID = window
+    val firstWindow = processMap["notepad++"]
+    AttachedWindows.firstWindowProcessID = firstWindow
 
-    val attachedWindow = IntByReference(21600)
-    AttachedWindows.secondWindowProcessID = attachedWindow
+    val secondWindow = processMap["Notepad2"]
+    AttachedWindows.secondWindowProcessID = secondWindow
+
+    AttachedWindows.hookPoint = HookPoint.Top
 
     User32.INSTANCE.EnumWindows(object : WinUser.WNDENUMPROC {
         override fun callback(hwnd: WinDef.HWND, pntr: Pointer): Boolean {
@@ -64,11 +52,27 @@ fun main(args: Array<String>) {
 
     val placement = WinUser.WINDOWPLACEMENT()
     User32.INSTANCE.GetWindowPlacement(AttachedWindows.firstWindowHandleID, placement)
-
-    val rect = WinDef.RECT()
-    User32.INSTANCE.GetWindowRect(AttachedWindows.firstWindowHandleID, rect)
-
     User32.INSTANCE.SetWindowPlacement(AttachedWindows.secondWindowHandleID, placement)
 
-    User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID, rect.left, rect.top, rect.right, rect.bottom, true)
+    val firstRect = WinDef.RECT()
+    val secondRect = WinDef.RECT()
+
+    while (true) {
+        User32.INSTANCE.GetWindowRect(AttachedWindows.firstWindowHandleID, firstRect)
+        User32.INSTANCE.GetClientRect(AttachedWindows.secondWindowHandleID, secondRect)
+
+        val firstWidth = firstRect.right - firstRect.left
+        val firstHeight = firstRect.bottom - firstRect.top
+
+        val secondWidth = secondRect.right - secondRect.left
+        val secondHeight = secondRect.bottom - secondRect.top
+
+        // TODO: Implement hook points
+        User32.INSTANCE.MoveWindow(AttachedWindows.secondWindowHandleID,
+                firstRect.left,
+                firstRect.top - secondHeight - 51,
+                firstWidth,
+                240,
+                true)
+    }
 }
