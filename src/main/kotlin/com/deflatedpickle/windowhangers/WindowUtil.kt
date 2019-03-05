@@ -1,15 +1,11 @@
 package com.deflatedpickle.windowhangers
 
 import com.sun.jna.Native
-import com.sun.jna.Pointer
 import com.sun.jna.StringArray
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
-import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
 import org.joml.Vector2i
-import org.eclipse.swt.internal.win32.OS.GetWindowTextA
-
 
 
 object WindowUtil {
