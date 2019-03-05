@@ -12,13 +12,13 @@ fun main(args: Array<String>) {
     // WindowUtil.processMap.forEach { t, u -> println("$t = $u") }
 
     // Test window
-    val firstWindow = WindowUtil.processMap["notepad++"]
-    AttachedWindows.rootWindowProcessID = firstWindow
+    AttachedWindows.rootWindowProcessID = WindowUtil.processMap["notepad++"]
 
-    val secondWindow = WindowUtil.processMap["gvim"]
-    AttachedWindows.attachedWindowProcessIDs["gvim"] = secondWindow
+    AttachedWindows.attachedWindowProcessIDs["gvim"] = WindowUtil.processMap["gvim"]
+    AttachedWindows.hookPoints["gvim"] = HookPoint.Top
 
-    AttachedWindows.hookPoint = HookPoint.Top
+    AttachedWindows.attachedWindowProcessIDs["console"] = WindowUtil.processMap["console"]
+    AttachedWindows.hookPoints["console"] = HookPoint.Left
 
     // TODO: Move to WindowUtil
     User32.INSTANCE.EnumWindows(object : WinUser.WNDENUMPROC {
@@ -76,7 +76,7 @@ fun main(args: Array<String>) {
             val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left
             val attachedHeight = attachedRect[k]!!.bottom - attachedRect[k]!!.top
 
-            when (AttachedWindows.hookPoint) {
+            when (AttachedWindows.hookPoints[k]) {
                 HookPoint.Top -> {
                     User32.INSTANCE.MoveWindow(AttachedWindows.attachedWindowHandleIDs[k],
                             rootRect.left,

@@ -10,5 +10,5 @@ object AttachedWindows {
     var rootWindowHandleID: WinDef.HWND? = null
     var attachedWindowHandleIDs: MutableMap<String, WinDef.HWND?> = mutableMapOf()
 
-    var hookPoint = HookPoint.Centre
+    var hookPoints: MutableMap<String, HookPoint> = mutableMapOf()
 }
