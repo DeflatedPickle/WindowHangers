@@ -1,10 +1,7 @@
 package com.deflatedpickle.windowhangers
 
-import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
-import com.sun.jna.platform.win32.WinUser
-import com.sun.jna.ptr.IntByReference
 import org.joml.Vector2i
 
 
@@ -12,42 +9,21 @@ fun main(args: Array<String>) {
     // WindowUtil.processMap.forEach { t, u -> println("$t = $u") }
 
     // Test window
-    AttachedWindows.rootWindowProcessID = WindowUtil.processMap["notepad++"]
+    // Grabs a window by it's process ID
+    AttachedWindows.rootWindowHandleID = WindowUtil.getWindowFromProcess(WindowUtil.processMap["notepad++"]!!)
 
-    AttachedWindows.attachedWindowProcessIDs["gvim"] = WindowUtil.processMap["gvim"]
+    // Grabs a window by it's name
+    AttachedWindows.attachedWindowHandleIDs["notepad"] = WindowUtil.getWindowFromTitle("Untitled - Notepad")
+    AttachedWindows.hookPoints["notepad"] = HookPoint.Left
+
+    // Grabs a window by part of it's name
+    AttachedWindows.attachedWindowHandleIDs["gvim"] = WindowUtil.getWindowFromTitle("GVIM", true)
     AttachedWindows.hookPoints["gvim"] = HookPoint.Top
-
-    AttachedWindows.attachedWindowProcessIDs["console"] = WindowUtil.processMap["console"]
-    AttachedWindows.hookPoints["console"] = HookPoint.Left
-
-    // TODO: Move to WindowUtil
-    User32.INSTANCE.EnumWindows(object : WinUser.WNDENUMPROC {
-        override fun callback(hwnd: WinDef.HWND, pntr: Pointer): Boolean {
-            val dwProcessId = IntByReference(0)
-
-            User32.INSTANCE.GetWindowThreadProcessId(hwnd, dwProcessId)
-
-            if (AttachedWindows.rootWindowHandleID == null
-                    && dwProcessId.value == AttachedWindows.rootWindowProcessID!!.value) {
-                AttachedWindows.rootWindowHandleID = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
-            }
-
-            for ((k, v) in AttachedWindows.attachedWindowProcessIDs) {
-                if (AttachedWindows.attachedWindowHandleIDs[k] == null
-                        && dwProcessId.value == AttachedWindows.attachedWindowProcessIDs[k]!!.value) {
-                    AttachedWindows.attachedWindowHandleIDs[k] = User32.INSTANCE.GetWindow(hwnd, WinDef.DWORD(User32.GW_OWNER.toLong()))
-                }
-            }
-
-            return true
-        }
-
-    }, Pointer(1L))
 
     val rootRect = WinDef.RECT()
     val attachedRect = mutableMapOf<String, WinDef.RECT>()
 
-    for ((k, v) in AttachedWindows.attachedWindowProcessIDs) {
+    for ((k, v) in AttachedWindows.attachedWindowHandleIDs) {
         attachedRect[k] = WinDef.RECT()
         User32.INSTANCE.GetWindowRect(AttachedWindows.attachedWindowHandleIDs[k], attachedRect[k])
     }
@@ -72,7 +48,7 @@ fun main(args: Array<String>) {
 
         WindowUtil.windowSize.set(rootWidth, rootHeight)
 
-        for ((k, v) in attachedRect) {
+        for ((k, _) in attachedRect) {
             val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left
             val attachedHeight = attachedRect[k]!!.bottom - attachedRect[k]!!.top
 
