@@ -2,7 +2,9 @@ package com.deflatedpickle.hangerchan
 
 import java.awt.Color
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.event.ActionListener
+import java.util.concurrent.ThreadLocalRandom
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.Timer
@@ -21,9 +23,15 @@ fun main(args: Array<String>) {
     frame.add(label)
 
     val sheet = SpriteSheet("/hangerchan/Hangerchan", 8, 10)
+    var currentAction = Action.Idle
 
     frame.pack()
     frame.isVisible = true
+
+    // -1 = Left, 1 = Right
+    var direction = 1.0
+
+    var graceCooldown = 30
 
     var animFrame = 0
     val timer = Timer(120, ActionListener {
@@ -33,7 +41,48 @@ fun main(args: Array<String>) {
             animFrame = 0
         }
 
-        label.icon = sheet.spriteMap["Idle"]!![animFrame]
+        if (label.x > frame.width - 86) {
+            direction = -1.0
+        }
+        else if (label.x < 0) {
+            direction = 1.0
+        }
+
+        when (currentAction) {
+            Action.Idle -> {
+                if (graceCooldown == 0) {
+                    val random = ThreadLocalRandom.current().nextInt(0, 11)
+
+                    if (random == 0) {
+                        currentAction = Action.Walking
+                        graceCooldown = 30
+                    }
+                }
+                else {
+                    graceCooldown--
+                }
+            }
+            Action.Walking -> {
+                label.location = Point(label.x + (3 * direction.toInt()), label.y)
+
+                if (graceCooldown == 0) {
+                    val random = ThreadLocalRandom.current().nextInt(0, 11)
+
+                    if (random == 0) {
+                        currentAction = Action.Idle
+                        graceCooldown = 30
+                    }
+                }
+                else {
+                    graceCooldown--
+                }
+            }
+        }
+
+        label.icon = sheet.spriteMap[currentAction.toString()]!![animFrame]
+        if (label.icon != null) {
+            (label.icon as ScalableImageIcon).xScale = direction
+        }
     })
     timer.start()
 

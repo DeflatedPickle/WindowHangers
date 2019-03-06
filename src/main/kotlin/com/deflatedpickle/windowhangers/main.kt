@@ -13,12 +13,15 @@ fun main(args: Array<String>) {
     AttachedWindows.rootWindowHandleID = WindowUtil.getWindowFromProcess(WindowUtil.processMap["notepad++"]!!)
 
     // Grabs a window by it's name
-    AttachedWindows.attachedWindowHandleIDs["notepad"] = WindowUtil.getWindowFromTitle("Untitled - Notepad")
-    AttachedWindows.hookPoints["notepad"] = HookPoint.Left
+    // AttachedWindows.attachedWindowHandleIDs["notepad"] = WindowUtil.getWindowFromTitle("Console2")
+    // AttachedWindows.hookPoints["notepad"] = HookPoint.Left
+
+    AttachedWindows.attachedWindowHandleIDs["hangerchan"] = WindowUtil.getWindowFromTitle("Hanger-chan")
+    AttachedWindows.hookPoints["hangerchan"] = HookPoint.Top
 
     // Grabs a window by part of it's name
-    AttachedWindows.attachedWindowHandleIDs["gvim"] = WindowUtil.getWindowFromTitle("GVIM", true)
-    AttachedWindows.hookPoints["gvim"] = HookPoint.Top
+    // AttachedWindows.attachedWindowHandleIDs["gvim"] = WindowUtil.getWindowFromTitle("GVIM", true)
+    // AttachedWindows.hookPoints["gvim"] = HookPoint.Top
 
     val rootRect = WinDef.RECT()
     val attachedRect = mutableMapOf<String, WinDef.RECT>()
