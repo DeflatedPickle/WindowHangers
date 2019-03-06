@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     val label = JLabel()
     frame.add(label)
 
-    val sheet = SpriteSheet("/hangerchan/Dance", 8, 10)
+    val sheet = SpriteSheet("/hangerchan/Hangerchan", 8, 10)
 
     frame.pack()
     frame.isVisible = true
@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
             animFrame = 0
         }
 
-        label.icon = sheet.spriteMap["Hula"]!![animFrame]
+        label.icon = sheet.spriteMap["Idle"]!![animFrame]
     })
     timer.start()
 
