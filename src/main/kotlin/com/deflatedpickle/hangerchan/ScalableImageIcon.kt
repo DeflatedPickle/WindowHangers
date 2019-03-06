@@ -7,10 +7,22 @@ import java.awt.Graphics
 import java.awt.Image
 
 
+/**
+ * An <code>ImageIcon</code> that can be scaled
+ */
 class ScalableImageIcon(image: Image) : ImageIcon(image) {
-    var xScale = 1.0
-    var yScale = 1.0
+    /**
+     * How much to scale the image by on the X axis
+     */
+    var xScale: Double = 1.0
+    /**
+     * How much to scale the image by on the Y axis
+     */
+    var yScale: Double = 1.0
 
+    /**
+     * {@inheritDoc}
+     */
     @Synchronized
     override fun paintIcon(c: Component, g: Graphics, x: Int, y: Int) {
         val g2 = g.create() as Graphics2D

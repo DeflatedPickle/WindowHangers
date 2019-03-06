@@ -8,12 +8,27 @@ import com.sun.jna.ptr.IntByReference
 import org.joml.Vector2i
 
 
+/**
+ * A utility object for working with windows on-screen
+ */
 object WindowUtil {
+    /**
+     * A map of the processes running (not updated during run-time)
+     */
     val processMap = mutableMapOf<String, IntByReference>()
 
+    /**
+     * The position of the root window
+     */
     val windowPosition = Vector2i()
+    /**
+     * The size of the root window
+     */
     val windowSize = Vector2i()
 
+    /**
+     * The speed the root window is moving at
+     */
     val movementSpeed = Vector2i()
 
     init {
@@ -26,6 +41,9 @@ object WindowUtil {
         }
     }
 
+    /**
+     * Gets a window's HWND from its title
+     */
     fun getWindowFromTitle(name: String, partial: Boolean = false): WinDef.HWND? {
         var window: WinDef.HWND? = null
 
@@ -53,6 +71,9 @@ object WindowUtil {
         return window
     }
 
+    /**
+     * Gets the owner window from a process ID
+     */
     fun getWindowFromProcess(process: IntByReference): WinDef.HWND? {
         var window: WinDef.HWND? = null
 
