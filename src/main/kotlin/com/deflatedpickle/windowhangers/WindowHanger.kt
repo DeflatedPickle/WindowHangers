@@ -57,14 +57,14 @@ class WindowHanger(private val rootWindow: WinDef.HWND,
                         HookPoint.Top -> {
                             User32.INSTANCE.MoveWindow(attachedWindows[k],
                                     rootRect.left,
-                                    rootRect.top - attachedHeight + 8,
+                                    rootRect.top - attachedHeight /* + 8 */,
                                     rootWidth,
                                     attachedHeight,
                                     true)
                         }
                         HookPoint.Right -> {
                             User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left + rootWidth - 15,
+                                    rootRect.left + rootWidth /* - 15 */,
                                     rootRect.top,
                                     attachedWidth,
                                     rootHeight,
@@ -73,14 +73,14 @@ class WindowHanger(private val rootWindow: WinDef.HWND,
                         HookPoint.Bottom -> {
                             User32.INSTANCE.MoveWindow(attachedWindows[k],
                                     rootRect.left,
-                                    rootRect.top + rootHeight - 8,
+                                    rootRect.top + rootHeight /* - 8 */,
                                     rootWidth,
                                     attachedHeight,
                                     true)
                         }
                         HookPoint.Left -> {
                             User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left - attachedWidth + 15,
+                                    rootRect.left - attachedWidth /* + 15 */,
                                     rootRect.top,
                                     attachedWidth,
                                     rootHeight,
