@@ -45,6 +45,7 @@ fun main(args: Array<String>) {
 
     // -1 = Left, 1 = Right
     var direction = 1.0
+    // A cooldown that happens after the action is changed
     var graceCooldown = 30
     var animFrame = 0
 
@@ -75,7 +76,7 @@ fun main(args: Array<String>) {
 
                     if (random == 0) {
                         currentAction = Action.Walking
-                        graceCooldown = 30
+                        graceCooldown = ThreadLocalRandom.current().nextInt(25, 36)
                     }
                 }
                 else {
@@ -90,7 +91,7 @@ fun main(args: Array<String>) {
 
                     if (random == 0) {
                         currentAction = Action.Idle
-                        graceCooldown = 30
+                        graceCooldown = ThreadLocalRandom.current().nextInt(25, 36)
                     }
                 }
                 else {

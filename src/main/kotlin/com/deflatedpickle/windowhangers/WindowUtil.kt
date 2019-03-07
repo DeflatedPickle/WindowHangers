@@ -1,5 +1,7 @@
 package com.deflatedpickle.windowhangers
 
+import com.deflatedpickle.jna.TITLEBARINFO
+import com.deflatedpickle.jna.User32Extended
 import com.sun.jna.Native
 import com.sun.jna.StringArray
 import com.sun.jna.platform.win32.User32
@@ -42,11 +44,14 @@ object WindowUtil {
         }
     }
 
+    /**
+     * Returns a list of all the current windows that are shown
+     */
     fun getAllWindows(onlyShown: Boolean = false): List<WinDef.HWND> {
         val windows: MutableList<WinDef.HWND> = mutableListOf()
 
         User32.INSTANCE.EnumWindows({ hwnd, pntr ->
-            if (getTitle(hwnd) !in arrayOf("", "Default IME", "MSCTFIME UI")) {
+            if (isWindow(hwnd)) {
                 if (onlyShown) {
                     if (!isIconic(hwnd)) {
                         windows.add(hwnd)
@@ -112,13 +117,33 @@ object WindowUtil {
         return User32.INSTANCE.GetWindow(window, WinDef.DWORD(User32.GW_OWNER.toLong()))
     }
 
+    /**
+     * Gets the title of a window as a string
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
     fun getTitle(hwnd: WinDef.HWND): String {
-        val windowText = CharArray(512)
-        User32.INSTANCE.GetWindowText(hwnd, windowText, 512)
+        val length = User32.INSTANCE.GetWindowTextLength(hwnd) + 1
+        val windowText = CharArray(length)
+        User32.INSTANCE.GetWindowText(hwnd, windowText, length)
 
         return Native.toString(windowText)
     }
 
+    /**
+     * Gets the class of the window
+     */
+    fun getClass(hwnd: WinDef.HWND): String {
+        val className = CharArray(80)
+        User32.INSTANCE.GetClassName(hwnd, className, 80)
+
+        return Native.toString(className)
+    }
+
+    /**
+     * Determines whether or not a window is minimized
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    // https://stackoverflow.com/a/7292674
     fun isIconic(hwnd: WinDef.HWND): Boolean {
         val info = WinUser.WINDOWINFO()
         User32.INSTANCE.GetWindowInfo(hwnd, info)
@@ -127,5 +152,46 @@ object WindowUtil {
             return true
         }
         return false
+    }
+
+    /**
+     * Determines whether or not the given HWND is a window
+     */
+    // TODO: Check if the program is running in the background, if so, return false
+    // TODO: Move visibility checks to a different function
+    fun isWindow(hwnd: WinDef.HWND): Boolean {
+        if (getTitle(hwnd).isEmpty()
+                || !User32.INSTANCE.IsWindowVisible(hwnd)
+                || !User32.INSTANCE.IsWindowEnabled(hwnd)
+                || User32.INSTANCE.GetWindowLong(hwnd, User32.GWL_EXSTYLE) and User32Extended.WS_EX_TOOLWINDOW != 0) {
+            return false
+        }
+
+        var hwndTry = User32.INSTANCE.GetAncestor(hwnd, User32.GA_ROOTOWNER)
+        var hwndWalk: WinDef.HWND? = null
+        while (hwndTry != hwndWalk) {
+            hwndWalk = hwndTry
+            hwndTry = User32Extended.INSTANCE.GetLastActivePopup(hwndWalk)
+
+            if (User32.INSTANCE.IsWindowVisible(hwndTry)) {
+                break
+            }
+        }
+        if (hwndWalk != hwnd) {
+            return false
+        }
+
+        val titleBarInfo = TITLEBARINFO()
+        User32Extended.INSTANCE.GetTitleBarInfo(hwnd, titleBarInfo)
+
+        if (titleBarInfo.rgstate[TITLEBARINFO.TITLE_BAR] and User32Extended.STATE_SYSTEM_INVISIBLE != 0) {
+            return false
+        }
+
+        if (User32Extended.INSTANCE.IsIconic(hwnd)) {
+            return false
+        }
+
+        return true
     }
 }
