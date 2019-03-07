@@ -4,6 +4,7 @@ import com.sun.jna.Native
 import com.sun.jna.StringArray
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
+import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
 import org.joml.Vector2i
 
@@ -41,6 +42,27 @@ object WindowUtil {
         }
     }
 
+    fun getAllWindows(onlyShown: Boolean = false): List<WinDef.HWND> {
+        val windows: MutableList<WinDef.HWND> = mutableListOf()
+
+        User32.INSTANCE.EnumWindows({ hwnd, pntr ->
+            if (getTitle(hwnd) !in arrayOf("", "Default IME", "MSCTFIME UI")) {
+                if (onlyShown) {
+                    if (!isIconic(hwnd)) {
+                        windows.add(hwnd)
+                    }
+                }
+                else {
+                    windows.add(hwnd)
+                }
+            }
+
+            true
+        }, null)
+
+        return windows
+    }
+
     /**
      * Gets a window's HWND from its title
      */
@@ -48,9 +70,7 @@ object WindowUtil {
         var window: WinDef.HWND? = null
 
         User32.INSTANCE.EnumWindows({ hwnd, pntr ->
-            val windowText = CharArray(512)
-            User32.INSTANCE.GetWindowText(hwnd, windowText, 512)
-            val wText = Native.toString(windowText)
+            val wText = getTitle(hwnd)
 
             if (wText == pntr.getStringArray(0L)[0]) {
                 window = hwnd
@@ -90,5 +110,22 @@ object WindowUtil {
         }, null)
 
         return User32.INSTANCE.GetWindow(window, WinDef.DWORD(User32.GW_OWNER.toLong()))
+    }
+
+    fun getTitle(hwnd: WinDef.HWND): String {
+        val windowText = CharArray(512)
+        User32.INSTANCE.GetWindowText(hwnd, windowText, 512)
+
+        return Native.toString(windowText)
+    }
+
+    fun isIconic(hwnd: WinDef.HWND): Boolean {
+        val info = WinUser.WINDOWINFO()
+        User32.INSTANCE.GetWindowInfo(hwnd, info)
+
+        if (info.dwStyle and WinUser.WS_MINIMIZE == WinUser.WS_MINIMIZE) {
+            return true
+        }
+        return false
     }
 }
