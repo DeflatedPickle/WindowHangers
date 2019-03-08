@@ -4,7 +4,9 @@ import com.deflatedpickle.windowhangers.HookPoint
 import com.deflatedpickle.windowhangers.WindowHanger
 import com.deflatedpickle.windowhangers.WindowUtil
 import com.sun.jna.Native
+import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
+import com.sun.jna.platform.win32.WinUser
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Point
@@ -35,9 +37,25 @@ fun main(args: Array<String>) {
     frame.pack()
     frame.isVisible = true
 
+    var window: WinDef.HWND? = null
+    val windowInfo = WinUser.WINDOWINFO()
+
+    var monitor: WinUser.HMONITOR? = null
+    val monitorInfo = WinUser.MONITORINFO()
+
+    while (monitorInfo.rcWork.top == windowInfo.rcWindow.top) {
+        window = WindowUtil.getAllWindows().shuffled()[0]
+        User32.INSTANCE.GetWindowInfo(window, windowInfo)
+
+        println(WindowUtil.getTitle(window))
+
+        User32.INSTANCE.MonitorFromWindow(window, User32.MONITOR_DEFAULTTONEAREST)
+        User32.INSTANCE.GetMonitorInfo(monitor, monitorInfo)
+    }
+
     val windowHanger = WindowHanger(
-            // TODO: Change this window to be not hard-coded
-            WindowUtil.getWindowFromProcess(WindowUtil.processMap["notepad++"]!!)!!,
+            // TODO: Check if the height of the window is the same as the monitor
+            window!!,
             mutableMapOf("hangerchan" to WinDef.HWND(Native.getComponentPointer(frame))),
             mutableMapOf("hangerchan" to HookPoint.Top)
     )

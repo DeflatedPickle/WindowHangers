@@ -34,6 +34,8 @@ object WindowUtil {
      */
     val movementSpeed = Vector2i()
 
+    val mousePointerLocation = Vector2i()
+
     init {
         for (ph in ProcessHandle.allProcesses()) {
             // println("ID: ${ph.pid()} | Command: ${ph.info().command()} | Parent: ${ph.parent()}")

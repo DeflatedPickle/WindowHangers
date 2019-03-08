@@ -44,6 +44,10 @@ class WindowHanger(private val rootWindow: WinDef.HWND,
                 WindowUtil.movementSpeed.set(oldPosition.x - newPosition.x, oldPosition.y - newPosition.y)
                 WindowUtil.windowPosition.set(newPosition.x, newPosition.y)
 
+                val mousePointer = WinDef.POINT()
+                User32.INSTANCE.GetCursorPos(mousePointer)
+                WindowUtil.mousePointerLocation.set(mousePointer.x, mousePointer.y)
+
                 val rootWidth = rootRect.right - rootRect.left
                 val rootHeight = rootRect.bottom - rootRect.top
 
