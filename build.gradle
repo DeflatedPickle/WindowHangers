@@ -20,6 +20,9 @@ dependencies {
     compile 'net.java.dev.jna:jna-platform:5.2.0'
     
     compile "org.joml:joml:1.9.12"
+
+    compile 'org.dyn4j:dyn4j:3.3.0'
+    compile 'com.github.dyn4j:dyn4j-samples:-SNAPSHOT'
 }
 
 compileKotlin {
