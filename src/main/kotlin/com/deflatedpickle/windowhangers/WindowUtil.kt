@@ -70,6 +70,19 @@ object WindowUtil {
         return windows
     }
 
+    fun getAllWindowRects(): List<WinDef.RECT> {
+        val rectList: MutableList<WinDef.RECT> = mutableListOf()
+
+        for (w in getAllWindows()) {
+            val rect = WinDef.RECT()
+            User32.INSTANCE.GetWindowRect(w, rect)
+
+            rectList.add(rect)
+        }
+
+        return rectList
+    }
+
     /**
      * Gets a window's HWND from its title
      */

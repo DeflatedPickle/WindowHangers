@@ -13,7 +13,7 @@ class SpriteSheet(image: String, spriteNumX: Int, spriteNumY: Int) {
     /**
      * The map of sprites cut from the sheet
      */
-    val spriteMap: MutableMap<String, MutableList<ImageIcon>> = mutableMapOf()
+    val spriteMap: MutableMap<String, MutableList<Image>> = mutableMapOf()
 
     /**
      * The width of the sprites
@@ -40,7 +40,7 @@ class SpriteSheet(image: String, spriteNumX: Int, spriteNumY: Int) {
             spriteMap[anim] = mutableListOf()
 
             for (frame in 1..spriteNumX) {
-                spriteMap[anim]!!.add(ScalableImageIcon(sheet.getSubimage(gridX * spriteWidth, gridY * spriteHeight, spriteWidth, spriteHeight).getScaledInstance(spriteWidth / 2, spriteHeight / 2, Image.SCALE_SMOOTH)))
+                spriteMap[anim]!!.add(sheet.getSubimage(gridX * spriteWidth, gridY * spriteHeight, spriteWidth, spriteHeight))
                 gridX++
             }
 
