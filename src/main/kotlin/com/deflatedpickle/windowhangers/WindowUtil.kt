@@ -54,6 +54,7 @@ object WindowUtil {
 
         User32.INSTANCE.EnumWindows({ hwnd, pntr ->
             if (isWindow(hwnd)) {
+                // println(getTitle(hwnd))
                 if (onlyShown) {
                     if (!isIconic(hwnd)) {
                         windows.add(hwnd)

@@ -12,6 +12,7 @@ import org.jbox2d.callbacks.ContactListener
 import org.jbox2d.collision.Manifold
 import org.jbox2d.collision.shapes.PolygonShape
 import org.jbox2d.common.Vec2
+import org.jbox2d.dynamics.Body
 import org.jbox2d.dynamics.BodyDef
 import org.jbox2d.dynamics.World
 import org.jbox2d.dynamics.contacts.Contact
@@ -61,11 +62,28 @@ fun main(args: Array<String>) {
     }
     world.setContactListener(collisions)
 
+    val windowBodies = mutableMapOf<WinDef.HWND, Body>()
     val timer = Timer(120 / 2, ActionListener {
         world.step(1f / 60f, 6, 2)
 
         hangerchan.animate()
         hangerchan.repaint()
+
+        // TODO: Only update it if the position has changed
+        // TODO: Poll for windows open since Hanger-chan was run
+        // TODO: Try moving to a second thread to see if there's a performance increase
+        for ((k, v) in windowBodies) {
+            val rect = WinDef.RECT()
+            User32.INSTANCE.GetWindowRect(k, rect)
+
+            val x = rect.left.toFloat() * PhysicsUtil.scaleDown
+            val y = rect.top.toFloat() * PhysicsUtil.scaleDown
+            val width = (rect.right.toFloat() * PhysicsUtil.scaleDown) - x
+            val height = (rect.bottom.toFloat() * PhysicsUtil.scaleDown) - y
+
+            v.setTransform(Vec2(x + width / 2, -y - height / 2), 0f)
+            (v.fixtureList.shape as PolygonShape).setAsBox(width / 2, height / 2)
+        }
     })
     timer.start()
 
@@ -117,22 +135,27 @@ fun main(args: Array<String>) {
     })
 
     // Windows
-    for (w in WindowUtil.getAllWindowRects()) {
-        val x = w.left.toFloat() * PhysicsUtil.scaleDown
-        val y = w.top.toFloat() * PhysicsUtil.scaleDown
-        val width = (w.right.toFloat() * PhysicsUtil.scaleDown) - x
-        val height = (w.bottom.toFloat() * PhysicsUtil.scaleDown) - y
+    for (w in WindowUtil.getAllWindows()) {
+        val rect = WinDef.RECT()
+        User32.INSTANCE.GetWindowRect(w, rect)
+
+        val x = rect.left.toFloat() * PhysicsUtil.scaleDown
+        val y = rect.top.toFloat() * PhysicsUtil.scaleDown
+        val width = (rect.right.toFloat() * PhysicsUtil.scaleDown) - x
+        val height = (rect.bottom.toFloat() * PhysicsUtil.scaleDown) - y
 
         // println("X: $x, Y: $y, Width: $width, Height: $height")
 
-        // TODO: Move the bodies with the windows
         // TODO: Split into a fixture for each side of the window, so something can happen inside a window
-        hangerchan.windows.add(world.createBody(BodyDef().apply {
+        val body = world.createBody(BodyDef().apply {
             position.set(x + width / 2, -y - height / 2)
         }).apply {
             createFixture(PolygonShape().apply {
                 setAsBox(width / 2, height / 2)
             }, 0f)
-        })
+        }
+        hangerchan.windows.add(body)
+
+        windowBodies[w] = body
     }
 }
