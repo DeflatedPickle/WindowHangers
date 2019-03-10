@@ -10,7 +10,7 @@ object PhysicsUtil {
     val scaleUp = 20f
     val scaleDown = 1 / scaleUp
 
-    fun drawPhysics(graphics2D: Graphics2D, body: Body) {
+    fun drawPhysicsShape(graphics2D: Graphics2D, body: Body) {
         val shape = (body.fixtureList.shape as PolygonShape)
         val vertices = shape.vertices
         for (i in vertices) {
@@ -20,6 +20,7 @@ object PhysicsUtil {
             else {
                 vertices[0]
             }
+
             val x = body.transform.p.x
             val y = body.transform.p.y
             graphics2D.drawLine(

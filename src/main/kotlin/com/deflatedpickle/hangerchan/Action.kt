@@ -6,5 +6,11 @@ package com.deflatedpickle.hangerchan
 @Suppress("KDocMissingDocumentation")
 enum class Action {
     Idle,
-    Walking
+    Walking,
+
+    Grabbed,
+    Pulled,
+    Thrown,
+
+    Falling,
 }

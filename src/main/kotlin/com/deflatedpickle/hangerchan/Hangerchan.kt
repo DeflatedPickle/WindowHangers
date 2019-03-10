@@ -1,9 +1,5 @@
 package com.deflatedpickle.hangerchan
 
-import com.sun.jna.Native
-import com.sun.jna.platform.win32.User32
-import com.sun.jna.platform.win32.WinDef
-import com.sun.jna.platform.win32.WinUser
 import org.jbox2d.collision.shapes.PolygonShape
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.Body
@@ -11,6 +7,8 @@ import org.jbox2d.dynamics.BodyDef
 import org.jbox2d.dynamics.BodyType
 import org.jbox2d.dynamics.World
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.util.concurrent.ThreadLocalRandom
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -42,8 +40,57 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
 
     var collisionSide: Vec2? = null
 
+    // Mouse events
+    var isGrabbed = false
+    var isBeingPulled = false
+
+    var justFell = false
+
+    // Changes when the mouse is clicked -- used to determine thrown force
+    var clickedX = 0f
+    var clickedY = 0f
+    var releasedX = 0f
+    var releasedY = 0f
+
+    // Changes when the mouse is moved
+    var mouseX = 0f
+    var mouseY = 0f
+
     init {
         isOpaque = false
+
+        myFrame.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                // If inside Hanger-chan
+                if (mouseX > body.position.x - sheet.spriteWidth / 2 && mouseX < body.position.x + sheet.spriteWidth / 2
+                        && mouseY > body.position.y - sheet.spriteHeight / 2 && mouseY < body.position.y + sheet.spriteHeight / 2) {
+                    isGrabbed = true
+                    
+                    clickedX = e.xOnScreen * PhysicsUtil.scaleDown
+                    clickedY = e.yOnScreen * PhysicsUtil.scaleDown
+                }
+            }
+
+            override fun mouseReleased(e: MouseEvent) {
+                if (isGrabbed) {
+                    releasedX = e.xOnScreen * PhysicsUtil.scaleDown
+                    releasedY = e.yOnScreen * PhysicsUtil.scaleDown
+                }
+
+                isGrabbed = false
+                isBeingPulled = false
+            }
+
+            override fun mouseDragged(e: MouseEvent) {
+                mouseX = e.xOnScreen * PhysicsUtil.scaleDown
+                mouseY = e.yOnScreen * PhysicsUtil.scaleDown
+
+                if (isGrabbed) {
+
+                    isBeingPulled = true
+                }
+            }
+        }.apply { myFrame.addMouseMotionListener(this) })
     }
 
     fun animate() {
@@ -66,15 +113,30 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
             }
         }
 
+        if (body.linearVelocity.y < -1 && clickedY == 0f || currentAction == Action.Thrown) {
+            currentAction = Action.Falling
+            justFell = true
+        }
+        else if (clickedY != 0f) {
+            currentAction = Action.Thrown
+        }
+        else {
+            if (justFell) {
+                currentAction = Action.Idle
+                justFell = false
+            }
+        }
+
+        if (isGrabbed) {
+            currentAction = Action.Grabbed
+        }
+
+        println(currentAction)
+
         when (currentAction) {
             Action.Idle -> {
+                // If this is set lower, her velocity stays at 0 forever. Bug?
                 body.linearVelocity.x = 0.4f
-
-                val directionRandom = ThreadLocalRandom.current().nextInt(0, 7)
-
-                if (directionRandom == 0) {
-                    direction *= -1
-                }
 
                 if (graceCooldown == 0) {
                     val random = ThreadLocalRandom.current().nextInt(0, 11)
@@ -82,6 +144,9 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
                     if (random == 0) {
                         currentAction = Action.Walking
                         graceCooldown = ThreadLocalRandom.current().nextInt(25, 36)
+                    }
+                    else if (random == 1) {
+                        direction *= -1
                     }
                 }
                 else {
@@ -103,6 +168,23 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
                     graceCooldown--
                 }
             }
+            Action.Grabbed -> {
+                if (isBeingPulled) {
+                    body.linearVelocity.x = 0f
+                    body.setTransform(Vec2(mouseX, -mouseY), 0f)
+                }
+            }
+            Action.Thrown -> {
+                // val force = Vec2(0f, clickedY + releasedY)
+                // println(force)
+                // body.linearVelocity = force
+                // currentAction = Action.Falling
+
+                clickedX = 0f
+                clickedY = 0f
+                releasedX = 0f
+                releasedY = 0f
+            }
         }
     }
 
@@ -117,7 +199,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
         // Debug prints
         // TODO: Window intersections, stop cluttering up the draw space
         g2D.color = Color.RED
-        PhysicsUtil.drawPhysics(g2D, body)
+        PhysicsUtil.drawPhysicsShape(g2D, body)
         // g2D.stroke = BasicStroke(4f)
         // for (i in WindowUtil.getAllWindowRects()) {
         //     g2D.drawRect(i.left, i.top, i.right - i.left, i.bottom - i.top)
@@ -126,7 +208,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
         g2D.color = Color.GREEN
         if (!borders.isEmpty()) {
             for (b in borders) {
-                PhysicsUtil.drawPhysics(g2D, b)
+                PhysicsUtil.drawPhysicsShape(g2D, b)
             }
         }
     }

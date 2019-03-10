@@ -1,2 +1,8 @@
 Idle
 Walking
+
+Grabbed
+Pulled
+Thrown
+
+Falling
