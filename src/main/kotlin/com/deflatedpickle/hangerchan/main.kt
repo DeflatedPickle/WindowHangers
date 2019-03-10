@@ -2,6 +2,7 @@ package com.deflatedpickle.hangerchan
 
 // import org.dyn4j.dynamics.World
 // import org.dyn4j.geometry.Vector2
+import com.deflatedpickle.windowhangers.WindowUtil
 import com.sun.jna.Native
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
@@ -114,4 +115,24 @@ fun main(args: Array<String>) {
             setAsBox(1f, monitorHeight / 2)
         }, 0f)
     })
+
+    // Windows
+    for (w in WindowUtil.getAllWindowRects()) {
+        val x = w.left.toFloat() * PhysicsUtil.scaleDown
+        val y = w.top.toFloat() * PhysicsUtil.scaleDown
+        val width = (w.right.toFloat() * PhysicsUtil.scaleDown) - x
+        val height = (w.bottom.toFloat() * PhysicsUtil.scaleDown) - y
+
+        // println("X: $x, Y: $y, Width: $width, Height: $height")
+
+        // TODO: Move the bodies with the windows
+        // TODO: Split into a fixture for each side of the window, so something can happen inside a window
+        hangerchan.windows.add(world.createBody(BodyDef().apply {
+            position.set(x + width / 2, -y - height / 2)
+        }).apply {
+            createFixture(PolygonShape().apply {
+                setAsBox(width / 2, height / 2)
+            }, 0f)
+        })
+    }
 }

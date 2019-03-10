@@ -70,6 +70,7 @@ object WindowUtil {
         return windows
     }
 
+    // TODO: Specify what monitor to look for windows on
     fun getAllWindowRects(): List<WinDef.RECT> {
         val rectList: MutableList<WinDef.RECT> = mutableListOf()
 

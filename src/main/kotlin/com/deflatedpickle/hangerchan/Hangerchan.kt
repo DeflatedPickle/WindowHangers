@@ -19,7 +19,8 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
 
     val body = world.createBody(BodyDef().apply {
         type = BodyType.DYNAMIC
-        position.set(20f, -40f)
+        position.set(20f, -10f)
+        fixedRotation = true
     }).apply {
         createFixture(PolygonShape().apply {
             setAsBox((sheet.spriteWidth.toFloat() / 4) * PhysicsUtil.scaleDown, (sheet.spriteHeight.toFloat() / 4) * PhysicsUtil.scaleDown)
@@ -31,6 +32,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
     }
 
     var borders: MutableList<Body> = mutableListOf()
+    var windows: MutableList<Body> = mutableListOf()
 
     // -1 = Left, 1 = Right
     var direction = -1
@@ -65,7 +67,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
                 if (mouseX > body.position.x - sheet.spriteWidth / 2 && mouseX < body.position.x + sheet.spriteWidth / 2
                         && mouseY > body.position.y - sheet.spriteHeight / 2 && mouseY < body.position.y + sheet.spriteHeight / 2) {
                     isGrabbed = true
-                    
+
                     clickedX = e.xOnScreen * PhysicsUtil.scaleDown
                     clickedY = e.yOnScreen * PhysicsUtil.scaleDown
                 }
@@ -131,7 +133,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
             currentAction = Action.Grabbed
         }
 
-        println(currentAction)
+        // println(currentAction)
 
         when (currentAction) {
             Action.Idle -> {
@@ -174,6 +176,7 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
                     body.setTransform(Vec2(mouseX, -mouseY), 0f)
                 }
             }
+            // TODO: Add some force when she's thrown
             Action.Thrown -> {
                 // val force = Vec2(0f, clickedY + releasedY)
                 // println(force)
@@ -209,6 +212,13 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
         if (!borders.isEmpty()) {
             for (b in borders) {
                 PhysicsUtil.drawPhysicsShape(g2D, b)
+            }
+        }
+
+        g2D.color = Color.MAGENTA
+        if (!windows.isEmpty()) {
+            for (w in windows) {
+                PhysicsUtil.drawPhysicsShape(g2D, w)
             }
         }
     }
