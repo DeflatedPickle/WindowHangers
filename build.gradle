@@ -21,8 +21,12 @@ dependencies {
     
     compile "org.joml:joml:1.9.12"
 
-    compile 'org.dyn4j:dyn4j:3.3.0'
-    compile 'com.github.dyn4j:dyn4j-samples:-SNAPSHOT'
+    // compile 'org.dyn4j:dyn4j:3.3.0'
+    // compile 'com.github.dyn4j:dyn4j-samples:-SNAPSHOT'
+
+    // compile 'cz.advel.jbullet:jbullet:20101010'
+
+    compile group: 'org.jbox2d', name: 'jbox2d-library', version: '2.2.1.1'
 }
 
 compileKotlin {
