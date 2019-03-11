@@ -135,7 +135,7 @@ fun main(args: Array<String>) {
     })
 
     // Windows
-    for (w in WindowUtil.getAllWindows()) {
+    for (w in WindowUtil.getAllWindows(0)) {
         val rect = WinDef.RECT()
         User32.INSTANCE.GetWindowRect(w, rect)
 

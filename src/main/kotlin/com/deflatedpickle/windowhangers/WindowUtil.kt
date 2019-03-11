@@ -49,18 +49,15 @@ object WindowUtil {
     /**
      * Returns a list of all the current windows that are shown
      */
-    fun getAllWindows(onlyShown: Boolean = false): List<WinDef.HWND> {
+    fun getAllWindows(monitor: Int): List<WinDef.HWND> {
         val windows: MutableList<WinDef.HWND> = mutableListOf()
 
         User32.INSTANCE.EnumWindows({ hwnd, pntr ->
             if (isWindow(hwnd)) {
                 // println(getTitle(hwnd))
-                if (onlyShown) {
-                    if (!isIconic(hwnd)) {
-                        windows.add(hwnd)
-                    }
-                }
-                else {
+
+                val monitorHandle = User32.INSTANCE.MonitorFromWindow(hwnd, User32.MONITOR_DEFAULTTONEAREST)
+                if (getMonitorFromIndex(monitor) == monitorHandle) {
                     windows.add(hwnd)
                 }
             }
@@ -72,10 +69,10 @@ object WindowUtil {
     }
 
     // TODO: Specify what monitor to look for windows on
-    fun getAllWindowRects(): List<WinDef.RECT> {
+    fun getAllWindowRects(monitor: Int): List<WinDef.RECT> {
         val rectList: MutableList<WinDef.RECT> = mutableListOf()
 
-        for (w in getAllWindows()) {
+        for (w in getAllWindows(monitor)) {
             val rect = WinDef.RECT()
             User32.INSTANCE.GetWindowRect(w, rect)
 
@@ -210,5 +207,25 @@ object WindowUtil {
         }
 
         return true
+    }
+
+    /**
+     * Retrieves a monitor handle from an index
+     */
+    fun getMonitorFromIndex(index: Int): WinUser.HMONITOR? {
+        var monitor: WinUser.HMONITOR? = null
+
+        var counter = 0
+        User32.INSTANCE.EnumDisplayMonitors(null, null, { hMonitor, hdcMonitor, lprcMonitor, dwData ->
+            if (counter == index) {
+                monitor = hMonitor
+                return@EnumDisplayMonitors 0
+            }
+            counter++
+
+            1
+        }, null)
+
+        return monitor
     }
 }

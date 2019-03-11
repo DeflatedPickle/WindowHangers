@@ -200,13 +200,10 @@ class Hangerchan(val myFrame: JFrame, val world: World) : JPanel() {
         g.drawImage(sheet.spriteMap[currentAction.toString()]!![currentFrame], (body.position.x * PhysicsUtil.scaleUp - sheet.spriteWidth / 4 + if (direction == -1) sheet.spriteWidth / 2 else 0).toInt(), (-body.position.y * PhysicsUtil.scaleUp - sheet.spriteHeight / 4).toInt(), (sheet.spriteWidth / 2) * direction, sheet.spriteHeight / 2, this)
 
         // Debug prints
-        // TODO: Window intersections, stop cluttering up the draw space
+        g2D.stroke = BasicStroke(2f)
+
         g2D.color = Color.RED
         PhysicsUtil.drawPhysicsShape(g2D, body)
-        // g2D.stroke = BasicStroke(4f)
-        // for (i in WindowUtil.getAllWindowRects()) {
-        //     g2D.drawRect(i.left, i.top, i.right - i.left, i.bottom - i.top)
-        // }
 
         g2D.color = Color.GREEN
         if (!borders.isEmpty()) {
