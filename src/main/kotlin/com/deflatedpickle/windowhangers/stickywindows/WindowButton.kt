@@ -5,9 +5,7 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
-class WindowButton(val composite: Composite, val x: Int, val y: Int, val width: Int, val height: Int) {
-    var parent: WindowButton? = null
-
+class WindowButton(val parent: WindowButton? = null, val composite: Composite, val x: Int, val y: Int) {
     val button = Button(composite, SWT.PUSH)
 
     val edgeWindows = mutableMapOf<String, WindowButton>() // mutableListOf<WindowButton>()
@@ -22,16 +20,28 @@ class WindowButton(val composite: Composite, val x: Int, val y: Int, val width: 
     var xPadding = 10
     var yPadding = 10
 
-    init {
-        WindowRegistry.windowButtons.add(this)
+    val untoggledWidth = 30
+    val untoggledHeight = 30
 
+    val toggledWidth = untoggledWidth * 6
+    val toggledHeight = untoggledHeight * 4
+
+    var currentWidth = untoggledWidth
+    var currentHeight = untoggledHeight
+
+    init {
         // TODO: Show a connection made between windows
-        button.setBounds(x, y, width, height)
+        currentWidth = untoggledWidth
+        currentHeight = untoggledHeight
+        button.setBounds(x, y, currentWidth, currentHeight)
 
         button.addListener(SWT.Selection) {
             // TODO: Enlarge the button when it's clicked, pushing aside it's edge buttons
             if (!isToggled) {
                 isToggled = true
+
+                // currentWidth = toggledWidth
+                // currentHeight = toggledHeight
 
                 // TODO: Make the mouse able to select a window
 
@@ -41,17 +51,20 @@ class WindowButton(val composite: Composite, val x: Int, val y: Int, val width: 
                         // println("$xMultiplier, $yMultiplier")
                         if (xMultiplier != 0 || yMultiplier != 0) {
                             // TODO: Check if the parent already has a button in this location
-                            val button = WindowButton(composite, x + ((width + xPadding) * xMultiplier), y + ((height + yPadding) * yMultiplier), width, height).apply { button.image = Icons.addIcon }
-                            button.centre()
-                            edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = button
+                            edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = WindowButton(this, composite, x + ((untoggledWidth + xPadding) * xMultiplier), y + ((untoggledHeight + yPadding) * yMultiplier)).apply { button.image = Icons.addIcon }
                         }
                     }
                 }
+                centre()
             }
         }
     }
 
     fun centre() {
-        button.setBounds(x + (composite.clientArea.width / 2) - (width / 2), y + (composite.clientArea.height / 2) - (height / 2), width, height)
+        button.setBounds(x + (composite.clientArea.width / 2) - (currentWidth / 2), y + (composite.clientArea.height / 2) - (currentHeight / 2), currentWidth, currentHeight)
+
+        for (i in edgeWindows.values) {
+            i.centre()
+        }
     }
 }
