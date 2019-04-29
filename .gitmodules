@@ -1,0 +1,3 @@
+[submodule "src/main/resources/Bincons"]
+	path = src/main/resources/Bincons
+	url = https://github.com/DeflatedPickle/Bincons

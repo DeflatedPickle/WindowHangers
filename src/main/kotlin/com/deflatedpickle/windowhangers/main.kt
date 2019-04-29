@@ -30,10 +30,11 @@ fun main(args: Array<String>) {
             super.create()
 
             shell.text = "Window Hangers"
-            shell.setMinimumSize(400, 400)
+            shell.setMinimumSize(600, 400)
         }
 
         override fun createContents(parent: Composite): Control {
+            Icons.createIcons()
             StickyWindows(parent)
 
             return super.createContents(parent)
