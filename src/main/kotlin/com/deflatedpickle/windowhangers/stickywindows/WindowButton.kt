@@ -8,11 +8,11 @@ import org.eclipse.swt.widgets.Composite
 class WindowButton(val parent: WindowButton? = null, val composite: Composite, val x: Int, val y: Int) {
     val button = Button(composite, SWT.PUSH)
 
-    val edgeWindows = mutableMapOf<String, WindowButton>() // mutableListOf<WindowButton>()
+    val edgeWindows = mutableMapOf<ButtonEdge, WindowButton>()
     val edgeKeys = listOf(
-            listOf("top_left", "top_centre", "top_right"),
-            listOf("middle_left", "middle_centre", "middle_right"),
-            listOf("bottom_left", "bottom_centre", "bottom_right"))
+            listOf(ButtonEdge.TOP_LEFT, ButtonEdge.TOP_CENTRE, ButtonEdge.TOP_RIGHT),
+            listOf(ButtonEdge.MIDDLE_LEFT, ButtonEdge.MIDDLE_CENTRE, ButtonEdge.MIDDLE_RIGHT),
+            listOf(ButtonEdge.BOTTOM_LEFT, ButtonEdge.BOTTOM_CENTRE, ButtonEdge.BOTTOM_RIGHT))
 
     // The window button has been clicked and a window has been selected for it
     var isToggled = false
@@ -48,7 +48,7 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
                 // TODO: Wait until a window has been selected to show these
                 for (yMultiplier in -1..1) {
                     for (xMultiplier in -1..1) {
-                        // println("$xMultiplier, $yMultiplier")
+                        println("$xMultiplier, $yMultiplier")
                         if (xMultiplier != 0 || yMultiplier != 0) {
                             // TODO: Check if the parent already has a button in this location
                             edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =
