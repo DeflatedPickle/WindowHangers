@@ -40,8 +40,8 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
             if (!isToggled) {
                 isToggled = true
 
-                // currentWidth = toggledWidth
-                // currentHeight = toggledHeight
+                currentWidth = toggledWidth
+                currentHeight = toggledHeight
 
                 // TODO: Make the mouse able to select a window
 
@@ -51,7 +51,11 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
                         // println("$xMultiplier, $yMultiplier")
                         if (xMultiplier != 0 || yMultiplier != 0) {
                             // TODO: Check if the parent already has a button in this location
-                            edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = WindowButton(this, composite, x + ((untoggledWidth + xPadding) * xMultiplier), y + ((untoggledHeight + yPadding) * yMultiplier)).apply { button.image = Icons.addIcon }
+                            edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =
+                                    WindowButton(this, composite,
+                                            x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
+                                            y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)
+                                    ).apply { button.image = Icons.addIcon }
                         }
                     }
                 }
