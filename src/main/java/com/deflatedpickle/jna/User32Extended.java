@@ -1,6 +1,7 @@
 package com.deflatedpickle.jna;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.win32.W32APIOptions;
@@ -54,4 +55,34 @@ public interface User32Extended extends User32 {
 
     // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-isiconic
     boolean IsIconic(WinDef.HWND hwnd);
+
+    // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-windowfrompoint
+    HWND WindowFromPoint(POINT point);
+
+    HWND WindowFromPoint(long point);
+
+    boolean GetCursorPos(long[] p);
+
+    // https://groups.google.com/forum/#!topic/jna-users/jVSfNCHMQ-M
+    static int POINT_X(long i) {
+        return (int) (i & 0xFFFF);
+    }
+
+    static int POINT_Y(long i) {
+        return (int) (i >> 32);
+    }
+
+    int CWP_ALL = 0x0000;
+    int CWP_SKIPDISABLED = 0x0002;
+    int CWP_SKIPINVISIBLE = 0x0001;
+    int CWP_SKIPTRANSPARENT = 0x0004;
+
+    // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-childwindowfrompoint
+    HWND ChildWindowFromPoint(HWND hWndParent, POINT point);
+
+    // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-childwindowfrompointex
+    HWND ChildWindowFromPointEx(Pointer hWndParent, long point, int flags);
+
+    // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getnextwindow
+    void GetNextWindow(HWND hWnd, int wCmd);
 }

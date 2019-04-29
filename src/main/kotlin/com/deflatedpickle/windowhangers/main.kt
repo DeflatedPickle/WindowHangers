@@ -1,6 +1,6 @@
 package com.deflatedpickle.windowhangers
 
-import com.deflatedpickle.windowhangers.stickywindows.StickyWindows
+import com.deflatedpickle.windowhangers.gui.stickywindows.StickyWindows
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control

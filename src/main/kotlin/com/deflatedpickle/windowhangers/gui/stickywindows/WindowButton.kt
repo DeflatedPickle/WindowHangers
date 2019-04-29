@@ -1,6 +1,7 @@
-package com.deflatedpickle.windowhangers.stickywindows
+package com.deflatedpickle.windowhangers.gui.stickywindows
 
 import com.deflatedpickle.windowhangers.Icons
+import com.deflatedpickle.windowhangers.gui.SelectionWindow
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
@@ -43,12 +44,17 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
                 currentWidth = toggledWidth
                 currentHeight = toggledHeight
 
+                StickyWindowsUtil.currentButton = this
+
+                val selectionWindow = SelectionWindow()
+                selectionWindow.isVisible = true
+
                 // TODO: Make the mouse able to select a window
 
                 // TODO: Wait until a window has been selected to show these
                 for (yMultiplier in -1..1) {
                     for (xMultiplier in -1..1) {
-                        println("$xMultiplier, $yMultiplier")
+                        // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
                         if (xMultiplier != 0 || yMultiplier != 0) {
                             // TODO: Check if the parent already has a button in this location
                             edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =

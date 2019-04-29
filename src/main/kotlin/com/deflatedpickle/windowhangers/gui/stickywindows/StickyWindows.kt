@@ -1,4 +1,4 @@
-package com.deflatedpickle.windowhangers.stickywindows
+package com.deflatedpickle.windowhangers.gui.stickywindows
 
 import com.deflatedpickle.windowhangers.Icons
 import org.eclipse.swt.SWT
