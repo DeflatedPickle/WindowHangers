@@ -73,8 +73,9 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
                 User32.INSTANCE.SetForegroundWindow(window)
 
                 Display.getDefault().asyncExec {
-                    val button = StickyWindowsUtil.currentButton!!.button
-                    button.image = captureRegion(windowRect.left, windowRect.top, clientRect.right, clientRect.bottom)
+                    val windowButton = StickyWindowsUtil.currentButton!!
+                    windowButton.addEdgeButtons()
+                    windowButton.button.image = captureRegion(windowRect.left, windowRect.top, clientRect.right, clientRect.bottom)
                 }
             }
         }.also { this.addMouseMotionListener(it) })
@@ -83,17 +84,17 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
     fun captureRegion(x: Int, y: Int, width: Int, height: Int): Image? {
         val display = Display.getDefault()
 
-        println("Capturing $x, $y to $width, $height")
+        // println("Capturing $x, $y to $width, $height")
 
         val gc = GC(display)
         gc.antialias = SWT.ON
         gc.interpolation = SWT.HIGH
 
-        // TODO: Remap the width and height to a specified range
         val image = Image(display, width, height)
         gc.copyArea(image, x, y)
         gc.dispose()
 
+        // TODO: Remap the width and height to a specified range (it just stretches it to fit the button)
         val button = StickyWindowsUtil.currentButton!!.button
         return Image(display, image.imageData.scaledTo(button.bounds.width, button.bounds.height))
     }

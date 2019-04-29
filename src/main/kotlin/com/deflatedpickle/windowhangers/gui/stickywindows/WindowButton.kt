@@ -37,7 +37,6 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
         button.setBounds(x, y, currentWidth, currentHeight)
 
         button.addListener(SWT.Selection) {
-            // TODO: Enlarge the button when it's clicked, pushing aside it's edge buttons
             if (!isToggled) {
                 isToggled = true
 
@@ -48,24 +47,6 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
 
                 val selectionWindow = SelectionWindow()
                 selectionWindow.isVisible = true
-
-                // TODO: Make the mouse able to select a window
-
-                // TODO: Wait until a window has been selected to show these
-                for (yMultiplier in -1..1) {
-                    for (xMultiplier in -1..1) {
-                        // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
-                        if (xMultiplier != 0 || yMultiplier != 0) {
-                            // TODO: Check if the parent already has a button in this location
-                            edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =
-                                    WindowButton(this, composite,
-                                            x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
-                                            y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)
-                                    ).apply { button.image = Icons.addIcon }
-                        }
-                    }
-                }
-                centre()
             }
         }
     }
@@ -76,5 +57,22 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
         for (i in edgeWindows.values) {
             i.centre()
         }
+    }
+
+    fun addEdgeButtons() {
+        for (yMultiplier in -1..1) {
+            for (xMultiplier in -1..1) {
+                // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
+                if (xMultiplier != 0 || yMultiplier != 0) {
+                    // TODO: Check if the parent already has a button in this location
+                    edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =
+                            WindowButton(this, composite,
+                                    x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
+                                    y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)
+                            ).apply { button.image = Icons.addIcon }
+                }
+            }
+        }
+        centre()
     }
 }
