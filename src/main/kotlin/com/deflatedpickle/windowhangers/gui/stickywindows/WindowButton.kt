@@ -14,6 +14,7 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
     var window: WinDef.HWND? = null
 
     val edgeWindows = mutableMapOf<HookPoint, WindowButton>()
+    val edgeWindowsReversed = mutableMapOf<WindowButton, HookPoint>()
     val edgeKeys = listOf(
             listOf(HookPoint.TOP_LEFT, HookPoint.TOP_CENTRE, HookPoint.TOP_RIGHT),
             listOf(HookPoint.MIDDLE_LEFT, HookPoint.MIDDLE_CENTRE, HookPoint.MIDDLE_RIGHT),
@@ -69,11 +70,13 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
                 // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
                 if (xMultiplier != 0 || yMultiplier != 0) {
                     // TODO: Check if the parent already has a button in this location
-                    edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] =
-                            WindowButton(this, composite,
-                                    x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
-                                    y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)
-                            ).apply { button.image = Icons.addIcon }
+                    val button = WindowButton(this, composite,
+                            x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
+                            y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)).apply {
+                        button.image = Icons.addIcon
+                    }
+                    edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = button
+                    edgeWindowsReversed[button] = edgeKeys[yMultiplier + 1][xMultiplier + 1]
                 }
             }
         }

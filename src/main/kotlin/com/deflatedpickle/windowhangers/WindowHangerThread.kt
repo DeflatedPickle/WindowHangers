@@ -1,17 +1,21 @@
 package com.deflatedpickle.windowhangers
 
 class WindowHangerThread : Runnable {
+    companion object {
+        @Volatile
+        var windowHangerList = listOf<WindowHanger>()
+    }
+
     val run = true
 
     override fun run() {
         while (run) {
+            // windowHangerList.toString()
+            // println(windowHangerList)
             for (i in windowHangerList) {
+                // println(i)
                 i.moveChildren()
             }
         }
-    }
-
-    companion object {
-        val windowHangerList = mutableListOf<WindowHanger>()
     }
 }

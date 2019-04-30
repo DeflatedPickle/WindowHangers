@@ -2,6 +2,7 @@ package com.deflatedpickle.windowhangers.gui
 
 import com.deflatedpickle.jna.User32Extended
 import com.deflatedpickle.windowhangers.WindowHanger
+import com.deflatedpickle.windowhangers.WindowHangerThread
 import com.deflatedpickle.windowhangers.WindowUtil
 import com.deflatedpickle.windowhangers.gui.stickywindows.StickyWindowsUtil
 import com.sun.jna.Native
@@ -84,8 +85,9 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
                     windowButton.button.image = captureRegion(windowRect.left, windowRect.top, clientRect.right, clientRect.bottom)
 
                     if (windowButton.parent != null) {
-                        // TODO: Find what side the button is in relation to it's parent
-                        // TODO: Create an instance of WindowHanger and register it to WindowHangerThread#windowHangerList
+                        val side = windowButton.parent.edgeWindowsReversed[windowButton]
+                        val newList = WindowHangerThread.windowHangerList + listOf(WindowHanger(windowButton.parent.window!!, mutableMapOf("window" to windowButton.window!!), mutableMapOf("window" to side!!)))
+                        WindowHangerThread.windowHangerList = newList
                     }
                 }
 
