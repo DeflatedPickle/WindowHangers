@@ -25,6 +25,8 @@ fun main(args: Array<String>) {
     // val windowHanger = WindowHanger(rootWindow, attachedWindows, hookPoints)
     // windowHanger.run()
 
+    Thread(WindowHangerThread()).start()
+
     val window = object : ApplicationWindow(null) {
         override fun create() {
             super.create()

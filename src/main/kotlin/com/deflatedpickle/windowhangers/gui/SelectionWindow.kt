@@ -1,6 +1,7 @@
 package com.deflatedpickle.windowhangers.gui
 
 import com.deflatedpickle.jna.User32Extended
+import com.deflatedpickle.windowhangers.WindowHanger
 import com.deflatedpickle.windowhangers.WindowUtil
 import com.deflatedpickle.windowhangers.gui.stickywindows.StickyWindowsUtil
 import com.sun.jna.Native
@@ -33,8 +34,8 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
         this.isAlwaysOnTop = true
         this.isUndecorated = true
         this.background = Color(0, 0, 0, 255 / 4)
-        this.type = Window.Type.UTILITY
-        this.extendedState = JFrame.MAXIMIZED_BOTH
+        this.type = Type.UTILITY
+        this.extendedState = MAXIMIZED_BOTH
 
         this.addMouseListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
@@ -65,6 +66,10 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
                 User32Extended.INSTANCE.GetCursorPos(point)
 
                 val window = User32Extended.INSTANCE.WindowFromPoint(point[0])
+                // TODO: Pop-up an error dialog and unhide the selection window
+                if (StickyWindowsUtil.registeredHandles.contains(window)) return
+
+                StickyWindowsUtil.registeredHandles.add(window)
                 val windowRect = WinDef.RECT()
                 User32.INSTANCE.GetWindowRect(window, windowRect)
                 val clientRect = WinDef.RECT()
@@ -75,8 +80,16 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
                 Display.getDefault().asyncExec {
                     val windowButton = StickyWindowsUtil.currentButton!!
                     windowButton.addEdgeButtons()
+                    windowButton.window = window
                     windowButton.button.image = captureRegion(windowRect.left, windowRect.top, clientRect.right, clientRect.bottom)
+
+                    if (windowButton.parent != null) {
+                        // TODO: Find what side the button is in relation to it's parent
+                        // TODO: Create an instance of WindowHanger and register it to WindowHangerThread#windowHangerList
+                    }
                 }
+
+                this@SelectionWindow.dispose()
             }
         }.also { this.addMouseMotionListener(it) })
     }
@@ -96,6 +109,6 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
 
         // TODO: Remap the width and height to a specified range (it just stretches it to fit the button)
         val button = StickyWindowsUtil.currentButton!!.button
-        return Image(display, image.imageData.scaledTo(button.bounds.width, button.bounds.height))
+        return Image(display, image.imageData.scaledTo(button.bounds.width - 10, button.bounds.height - 10))
     }
 }

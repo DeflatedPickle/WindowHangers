@@ -32,73 +32,69 @@ class WindowHanger(private val rootWindow: WinDef.HWND,
     }
 
     /**
-     * Runs a thread that hooks the child windows to the root one
+     * Moves the child windows to their parent
      */
-    fun run() {
-        executor.execute {
-            while (true) {
-                oldPosition.set(rootRect.left, rootRect.top)
-                User32.INSTANCE.GetWindowRect(rootWindow, rootRect)
-                newPosition.set(rootRect.left, rootRect.top)
+    fun moveChildren() {
+        oldPosition.set(rootRect.left, rootRect.top)
+        User32.INSTANCE.GetWindowRect(rootWindow, rootRect)
+        newPosition.set(rootRect.left, rootRect.top)
 
-                WindowUtil.movementSpeed.set(oldPosition.x - newPosition.x, oldPosition.y - newPosition.y)
-                WindowUtil.windowPosition.set(newPosition.x, newPosition.y)
+        WindowUtil.movementSpeed.set(oldPosition.x - newPosition.x, oldPosition.y - newPosition.y)
+        WindowUtil.windowPosition.set(newPosition.x, newPosition.y)
 
-                val mousePointer = WinDef.POINT()
-                User32.INSTANCE.GetCursorPos(mousePointer)
-                WindowUtil.mousePointerLocation.set(mousePointer.x, mousePointer.y)
+        val mousePointer = WinDef.POINT()
+        User32.INSTANCE.GetCursorPos(mousePointer)
+        WindowUtil.mousePointerLocation.set(mousePointer.x, mousePointer.y)
 
-                val rootWidth = rootRect.right - rootRect.left
-                val rootHeight = rootRect.bottom - rootRect.top
+        val rootWidth = rootRect.right - rootRect.left
+        val rootHeight = rootRect.bottom - rootRect.top
 
-                WindowUtil.windowSize.set(rootWidth, rootHeight)
+        WindowUtil.windowSize.set(rootWidth, rootHeight)
 
-                for ((k, _) in attachedRect) {
-                    val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left
-                    val attachedHeight = attachedRect[k]!!.bottom - attachedRect[k]!!.top
+        for ((k, _) in attachedRect) {
+            val attachedWidth = attachedRect[k]!!.right - attachedRect[k]!!.left
+            val attachedHeight = attachedRect[k]!!.bottom - attachedRect[k]!!.top
 
-                    when (hookPoints[k]) {
-                        HookPoint.Top -> {
-                            User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left,
-                                    rootRect.top - attachedHeight /* + 8 */,
-                                    rootWidth,
-                                    attachedHeight,
-                                    true)
-                        }
-                        HookPoint.Right -> {
-                            User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left + rootWidth /* - 15 */,
-                                    rootRect.top,
-                                    attachedWidth,
-                                    rootHeight,
-                                    true)
-                        }
-                        HookPoint.Bottom -> {
-                            User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left,
-                                    rootRect.top + rootHeight /* - 8 */,
-                                    rootWidth,
-                                    attachedHeight,
-                                    true)
-                        }
-                        HookPoint.Left -> {
-                            User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left - attachedWidth /* + 15 */,
-                                    rootRect.top,
-                                    attachedWidth,
-                                    rootHeight,
-                                    true)
-                        }
-                        HookPoint.Centre -> {
-                            User32.INSTANCE.MoveWindow(attachedWindows[k],
-                                    rootRect.left + (rootWidth / 2) - (attachedWidth / 2),
-                                    rootRect.top + (rootHeight / 2) - (attachedHeight / 2),
-                                    attachedWidth,
-                                    attachedHeight,
-                                    true)
-                        }
-                    }
+            when (hookPoints[k]) {
+                HookPoint.TOP_CENTRE -> {
+                    User32.INSTANCE.MoveWindow(attachedWindows[k],
+                            rootRect.left,
+                            rootRect.top - attachedHeight /* + 8 */,
+                            rootWidth,
+                            attachedHeight,
+                            true)
+                }
+                HookPoint.MIDDLE_RIGHT -> {
+                    User32.INSTANCE.MoveWindow(attachedWindows[k],
+                            rootRect.left + rootWidth /* - 15 */,
+                            rootRect.top,
+                            attachedWidth,
+                            rootHeight,
+                            true)
+                }
+                HookPoint.BOTTOM_CENTRE -> {
+                    User32.INSTANCE.MoveWindow(attachedWindows[k],
+                            rootRect.left,
+                            rootRect.top + rootHeight /* - 8 */,
+                            rootWidth,
+                            attachedHeight,
+                            true)
+                }
+                HookPoint.MIDDLE_LEFT -> {
+                    User32.INSTANCE.MoveWindow(attachedWindows[k],
+                            rootRect.left - attachedWidth /* + 15 */,
+                            rootRect.top,
+                            attachedWidth,
+                            rootHeight,
+                            true)
+                }
+                HookPoint.MIDDLE_CENTRE -> {
+                    User32.INSTANCE.MoveWindow(attachedWindows[k],
+                            rootRect.left + (rootWidth / 2) - (attachedWidth / 2),
+                            rootRect.top + (rootHeight / 2) - (attachedHeight / 2),
+                            attachedWidth,
+                            attachedHeight,
+                            true)
                 }
             }
         }

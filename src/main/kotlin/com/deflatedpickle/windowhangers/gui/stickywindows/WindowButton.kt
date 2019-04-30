@@ -1,19 +1,23 @@
 package com.deflatedpickle.windowhangers.gui.stickywindows
 
+import com.deflatedpickle.windowhangers.HookPoint
 import com.deflatedpickle.windowhangers.Icons
+import com.deflatedpickle.windowhangers.WindowHanger
 import com.deflatedpickle.windowhangers.gui.SelectionWindow
+import com.sun.jna.platform.win32.WinDef
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 class WindowButton(val parent: WindowButton? = null, val composite: Composite, val x: Int, val y: Int) {
     val button = Button(composite, SWT.PUSH)
+    var window: WinDef.HWND? = null
 
-    val edgeWindows = mutableMapOf<ButtonEdge, WindowButton>()
+    val edgeWindows = mutableMapOf<HookPoint, WindowButton>()
     val edgeKeys = listOf(
-            listOf(ButtonEdge.TOP_LEFT, ButtonEdge.TOP_CENTRE, ButtonEdge.TOP_RIGHT),
-            listOf(ButtonEdge.MIDDLE_LEFT, ButtonEdge.MIDDLE_CENTRE, ButtonEdge.MIDDLE_RIGHT),
-            listOf(ButtonEdge.BOTTOM_LEFT, ButtonEdge.BOTTOM_CENTRE, ButtonEdge.BOTTOM_RIGHT))
+            listOf(HookPoint.TOP_LEFT, HookPoint.TOP_CENTRE, HookPoint.TOP_RIGHT),
+            listOf(HookPoint.MIDDLE_LEFT, HookPoint.MIDDLE_CENTRE, HookPoint.MIDDLE_RIGHT),
+            listOf(HookPoint.BOTTOM_LEFT, HookPoint.BOTTOM_CENTRE, HookPoint.BOTTOM_RIGHT))
 
     // The window button has been clicked and a window has been selected for it
     var isToggled = false
