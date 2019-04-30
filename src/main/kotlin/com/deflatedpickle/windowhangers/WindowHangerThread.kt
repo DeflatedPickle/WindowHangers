@@ -6,7 +6,7 @@ class WindowHangerThread : Runnable {
         var windowHangerList = listOf<WindowHanger>()
     }
 
-    val run = true
+    var run = true
 
     override fun run() {
         while (run) {
