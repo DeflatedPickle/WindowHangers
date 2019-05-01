@@ -10,7 +10,6 @@ class WindowHangerThread : Runnable {
 
     override fun run() {
         while (run) {
-            // windowHangerList.toString()
             // println(windowHangerList)
             for (i in windowHangerList) {
                 // println(i)

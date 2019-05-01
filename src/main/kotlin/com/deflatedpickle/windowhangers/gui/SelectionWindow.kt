@@ -86,7 +86,7 @@ class SelectionWindow : JFrame("Window Hangers - Selection") {
 
                     if (windowButton.parent != null) {
                         val side = windowButton.parent.edgeWindowsReversed[windowButton]
-                        val newList = WindowHangerThread.windowHangerList + listOf(WindowHanger(windowButton.parent.window!!, mutableMapOf("window" to windowButton.window!!), mutableMapOf("window" to side!!)))
+                        val newList = WindowHangerThread.windowHangerList + listOf(WindowHanger(windowButton.parent.window!!, windowButton.window!!, side!!))
                         WindowHangerThread.windowHangerList = newList
                     }
                 }

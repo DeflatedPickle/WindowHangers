@@ -20,22 +20,6 @@ object WindowUtil {
      */
     val processMap = mutableMapOf<String, IntByReference>()
 
-    /**
-     * The position of the root window
-     */
-    val windowPosition = Vector2i()
-    /**
-     * The size of the root window
-     */
-    val windowSize = Vector2i()
-
-    /**
-     * The speed the root window is moving at
-     */
-    val movementSpeed = Vector2i()
-
-    val mousePointerLocation = Vector2i()
-
     init {
         for (ph in ProcessHandle.allProcesses()) {
             // println("ID: ${ph.pid()} | Command: ${ph.info().command()} | Parent: ${ph.parent()}")
