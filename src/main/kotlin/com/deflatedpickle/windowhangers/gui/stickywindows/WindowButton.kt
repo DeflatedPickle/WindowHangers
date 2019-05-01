@@ -16,9 +16,9 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
     val edgeWindows = mutableMapOf<HookPoint, WindowButton>()
     val edgeWindowsReversed = mutableMapOf<WindowButton, HookPoint>()
     val edgeKeys = listOf(
-            listOf(HookPoint.TOP_LEFT, HookPoint.TOP_CENTRE, HookPoint.TOP_RIGHT),
-            listOf(HookPoint.MIDDLE_LEFT, HookPoint.MIDDLE_CENTRE, HookPoint.MIDDLE_RIGHT),
-            listOf(HookPoint.BOTTOM_LEFT, HookPoint.BOTTOM_CENTRE, HookPoint.BOTTOM_RIGHT))
+            listOf(HookPoint.NONE, HookPoint.TOP_CENTRE, HookPoint.NONE),
+            listOf(HookPoint.MIDDLE_LEFT, HookPoint.NONE, HookPoint.MIDDLE_RIGHT),
+            listOf(HookPoint.NONE, HookPoint.BOTTOM_CENTRE, HookPoint.NONE))
 
     // The window button has been clicked and a window has been selected for it
     var isToggled = false
@@ -68,7 +68,7 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
         for (yMultiplier in -1..1) {
             for (xMultiplier in -1..1) {
                 // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
-                if (xMultiplier != 0 || yMultiplier != 0) {
+                if (edgeKeys[yMultiplier + 1][xMultiplier + 1] != HookPoint.NONE) {
                     // TODO: Check if the parent already has a button in this location
                     val button = WindowButton(this, composite,
                             x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
