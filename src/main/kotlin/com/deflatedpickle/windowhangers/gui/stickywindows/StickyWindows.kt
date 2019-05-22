@@ -9,10 +9,8 @@ class StickyWindows(parent: Composite) : Canvas(parent, SWT.NONE) {
     var rootButton: WindowButton? = null
 
     init {
-        this.addListener(SWT.Activate) {
-            rootButton = WindowButton(null, this, 0, 0).apply { button.image = Icons.addIcon }
-            rootButton!!.centre()
-        }
+        rootButton = WindowButton(null, this, 0, 0).apply { button.image = Icons.addIcon }
+        rootButton!!.centre()
 
         this.addListener(SWT.Resize) {
             rootButton?.centre()

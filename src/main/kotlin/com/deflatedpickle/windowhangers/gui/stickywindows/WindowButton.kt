@@ -68,15 +68,19 @@ class WindowButton(val parent: WindowButton? = null, val composite: Composite, v
         for (yMultiplier in -1..1) {
             for (xMultiplier in -1..1) {
                 // println("$xMultiplier, $yMultiplier [${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier))} <=> ${ButtonEdge.fromPair(Pair(xMultiplier * -1, yMultiplier))} \\/ ${ButtonEdge.fromPair(Pair(xMultiplier, yMultiplier * -1))}]")
-                if (edgeKeys[yMultiplier + 1][xMultiplier + 1] != HookPoint.NONE) {
-                    // TODO: Check if the parent already has a button in this location
-                    val button = WindowButton(this, composite,
-                            x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier),
-                            y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)).apply {
-                        button.image = Icons.addIcon
+                if (yMultiplier != 0 || xMultiplier != 0) {
+                    if (edgeKeys[yMultiplier + 1][xMultiplier + 1] != HookPoint.NONE) {
+                        // TODO: Check if the parent already has a button in this location
+                        val thisX = x + (((parent?.currentWidth ?: currentWidth) + xPadding) * xMultiplier)
+                        val thisY = y + (((parent?.currentHeight ?: currentHeight) + yPadding) * yMultiplier)
+                        
+                        val button = WindowButton(this, composite, thisX, thisY).apply {
+                            button.image = Icons.addIcon
+                            // button.text = "$xMultiplier, $yMultiplier"
+                        }
+                        edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = button
+                        edgeWindowsReversed[button] = edgeKeys[yMultiplier + 1][xMultiplier + 1]
                     }
-                    edgeWindows[edgeKeys[yMultiplier + 1][xMultiplier + 1]] = button
-                    edgeWindowsReversed[button] = edgeKeys[yMultiplier + 1][xMultiplier + 1]
                 }
             }
         }
